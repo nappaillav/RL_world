@@ -1,0 +1,9 @@
+torch==1.6.0
+torchvision
+pyzmq
+numpy
+pyyaml==3.12
+gym
+pyglet
+opencv-python
+scikit-image
