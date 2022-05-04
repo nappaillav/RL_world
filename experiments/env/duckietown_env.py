@@ -234,53 +234,6 @@ class DuckietownEnv(Simulator):
         self.proximity_reward_2 = 0.
         self.orientation_reward = 0.
 
-
-    # def compute_reward(self, pos, angle, speed):
-
-    #     # Compute the collision avoidance penalty
-    #     col_penalty = self.proximity_penalty2(pos, angle)
-
-    #     # Get the position relative to the right lane tangent
-    #     try:
-    #         lp = self.get_lane_pos2(pos, angle)
-    #     except NotInLane:
-    #         reward = 40 * col_penalty
-    #     else:
-
-    #         # Compute the reward
-    #         reward = +1.0 * speed * lp.dot_dir + -10 * np.abs(lp.dist) + +40 * col_penalty
-    #     return reward
-
-    # def compute_reward(self, pos, angle, speed):
-
-        # collision reward
-
-        # Lane position
-
-        # Speed 
-
-        # orientation and travel distance 
-
-        
-
-
-
-    # def step(self, action: np.ndarray):
-    #     action = np.clip(action, -1, 1)
-    #     # Actions could be a Python list
-    #     action = np.array(action)
-    #     for _ in range(self.frame_skip):
-    #         self.update_physics(action)
-
-    #     # Generate the current camera image
-    #     obs = self.render_obs()
-    #     misc = self.get_agent_info()
-
-    #     d = self._compute_done_reward()
-    #     misc["Simulator"]["msg"] = d.done_why
-
-    #     return obs, d.reward, d.done, m
-
     def _compute_done_reward(self) -> DoneRewardInfo:
         # If the agent is not in a valid pose (on drivable tiles)
         if not self._valid_pose(self.cur_pos, self.cur_angle):
