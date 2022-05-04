@@ -1,4 +1,5 @@
 */gym-duckietown/*
 ./gym-duckietown/*
 gym-duckietown/
+experiments/env/__pycache__/*
  
