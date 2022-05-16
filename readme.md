@@ -14,3 +14,8 @@ In order to work with this repository
     ```
 
     conda install with the yaml file  or use  my_requirements.txt 
+
+```
+# to run the experiments 
+pip install -e .
+```

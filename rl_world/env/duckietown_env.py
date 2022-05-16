@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from gym_duckietown.simulator import Simulator
 from gym_duckietown import logger
 from gym_duckietown.simulator import NotInLane
+import cv2 
 
 @dataclass
 class DoneRewardInfo:
@@ -12,6 +13,8 @@ class DoneRewardInfo:
     done_why: str
     done_code: str
     reward: float
+    
+REWARD_INVALID_POSE = -100
 
 class DuckietownEnv(Simulator):
     """
@@ -19,7 +22,7 @@ class DuckietownEnv(Simulator):
     instead of differential drive motor velocities
     """
 
-    def __init__(self, gain=1.0, trim=0.0, radius=0.0318, k=27.0, limit=1.0, **kwargs):
+    def __init__(self, inp_shape=(80, 120), gain=1.0, trim=0.0, radius=0.0318, k=27.0, limit=1.0, **kwargs):
         Simulator.__init__(self, **kwargs)
         logger.info("using DuckietownEnv")
 
@@ -27,7 +30,7 @@ class DuckietownEnv(Simulator):
 
         # Should be adjusted so that the effective speed of the robot is 0.2 m/s
         self.gain = gain
-
+        self.inp_shape = inp_shape
         # Directional trim adjustment
         self.trim = trim
 
@@ -92,7 +95,8 @@ class DuckietownEnv(Simulator):
         reward_proximity = self._proximity_reward()
         reward_orientation = self._orientation_reward()
         
-
+        reward = reward_dist + reward_orientation + reward_velocity + reward_proximity
+        
         mine = {}
         mine["k"] = self.k
         mine["gain"] = self.gain
@@ -105,8 +109,26 @@ class DuckietownEnv(Simulator):
         info["reward_velocity"] = reward_velocity
         info["reward_proximity"] = reward_proximity
         info["reward_orientation"] = reward_orientation
+        obs = self._obs_wrapper(obs)
+
         return obs, reward, done, info
 
+    def _obs_wrapper(self, obs):
+        
+        # im_rgb = cv2.cvtColor(im_cv, cv2.COLOR_BGR2RGB)
+        obs = cv2.resize(obs, dsize=self.inp_shape[::-1])/255.0
+        # cv2.imwrite('test.png', obs*255)
+        return obs
+
+    # def _process_frame84(frame):
+    #     img = np.reshape(frame, [210, 160, 3]).astype(np.float32)
+    #     img = img[:, :, 0] * 0.299 + img[:, :, 1] * 0.587 + img[:, :, 2] * 0.114
+    #     img = Image.fromarray(img)
+    #     resized_screen = img.resize((84, 110), Image.BILINEAR)
+    #     resized_screen = np.array(resized_screen)
+    #     x_t = resized_screen[18:102, :]
+    #     x_t = np.reshape(x_t, [84, 84, 1])
+    #     return x_t.astype(np.uint8)
 
     def _distance_reward(self, lane_pos_threshold=-0.05, scale_factor=50):
         # Baseline reward is a for each step
@@ -225,6 +247,9 @@ class DuckietownEnv(Simulator):
         #     early_termination_penalty = -10.
         
         return self.orientation_reward + early_termination_penalty
+    
+    def _sample():
+        return NotImplementedError
 
     def _reward_reset():
         self.velocity_reward = 0

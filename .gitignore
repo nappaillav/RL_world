@@ -2,4 +2,9 @@
 ./gym-duckietown/*
 gym-duckietown/
 experiments/env/__pycache__/*
- 
+rl_world/env/__pycache__/*
+rl_world/*/__pycache__/*
+*/__pycache__/*
+rl_world.egg-info/*
+*/rl_world.egg-info/*
+./rl_world.egg-info/*
