@@ -13,7 +13,7 @@ MAX_EP_LEN = 2000
 
 class ddpg:
     def __init__(self,env, test_env, actor_critic, obs_shape, ac_kwargs=dict(), seed=0, 
-         steps_per_epoch=3000, epochs=100, replay_size=int(10000), gamma=0.99, 
+         steps_per_epoch=2000, epochs=100, replay_size=int(10000), gamma=0.99, 
          polyak=0.995, pi_lr=1e-3, q_lr=1e-3, batch_size=100, start_steps=2000, 
          update_after=2000, update_every=100, act_noise=0.1, num_test_episodes=10, 
          max_ep_len=1000, logger_kwargs=dict(), save_freq=1, device='cpu'):
@@ -132,7 +132,7 @@ class ddpg:
         for j in range(self.num_test_episodes):
             
             o, d, ep_ret, ep_len = self.test_env._obs_wrapper(self.test_env.reset()), False, 0, 0
-            env.render()
+            self.test_env.render()
             while not(d or (ep_len == MAX_EP_LEN)):
                 # Take deterministic actions at test time (noise_scale=0)
                 # print(o.shape)
@@ -140,12 +140,13 @@ class ddpg:
                 o, r, d, _ = self.test_env.step(a)
                 ep_ret += r
                 ep_len += 1
-                env.render()
+                self.test_env.render()
             
             logger.info("Episode return : {} == Episode Length : {}".format(ep_ret, ep_len))
 
             # logger.store(TestEpRet=ep_ret, TestEpLen=ep_len)
-    
+            self.test_env.close()
+
 
     def train(self):
         
