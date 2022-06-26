@@ -11,6 +11,7 @@ In order to work with this repository
     git clone https://github.com/duckietown/gym-duckietown.git
     cd gym-duckietown
     conda env create -f environment.yaml
+    conda install -c conda-forge wandb
     ```
 
     conda install with the yaml file  or use  my_requirements.txt 
@@ -18,4 +19,5 @@ In order to work with this repository
 ```
 # to run the experiments 
 pip install -e .
+wandb login
 ```

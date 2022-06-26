@@ -8,3 +8,7 @@ rl_world/*/__pycache__/*
 rl_world.egg-info/*
 */rl_world.egg-info/*
 ./rl_world.egg-info/*
+./rl_world/algo/wandb
+./rl_world/algo/runs
+rl_world/algo/wandb
+rl_world/algo/runs

@@ -8,6 +8,8 @@ import torch
 from torch.optim import Adam
 import time
 import cv2
+import wandb
+
 
 MAX_EP_LEN = 2000
 
@@ -16,7 +18,9 @@ class ddpg:
          steps_per_epoch=2000, epochs=100, replay_size=int(10000), gamma=0.99, 
          polyak=0.995, pi_lr=1e-3, q_lr=1e-3, batch_size=100, start_steps=2000, 
          update_after=2000, update_every=100, act_noise=0.1, num_test_episodes=10, 
-         max_ep_len=1000, logger_kwargs=dict(), save_freq=1, device='cpu'):
+         max_ep_len=500, logger_kwargs=dict(), save_freq=1, device='cpu', wandb_logging=False):
+
+        self.wandb_logging = wandb_logging
 
         self.env = env
         self.test_env = test_env
@@ -59,6 +63,11 @@ class ddpg:
 
         self.pi_optimizer = Adam(self.actor_critic.pi.parameters(), lr=pi_lr)
         self.q_optimizer = Adam(self.actor_critic.q.parameters(), lr=q_lr)
+
+        if self.wandb_logging:
+            # init wandb project/run
+            # add more tags
+            wandb.init(project="duckietown", tags=['ddpg', 'test_experiment'], entity="valudem", config = vars(self))
         
     def critic_loss(self, data):
 
@@ -77,20 +86,21 @@ class ddpg:
         loss_q = ((q - backup)**2).mean()
 
         # Useful info for logging
-        loss_info = dict(QVals=q.detach().numpy())
+        loss_info = loss_q.detach().numpy().mean()
 
         return loss_q, loss_info
 
     def actor_loss(self, data):
         o = data['obs']
         q_pi = self.actor_critic.q(o, self.actor_critic.pi(o))
-        return -q_pi.mean()
+        loss_info = q_pi.detach().numpy().mean()
+        return -q_pi.mean(), loss_info
 
 
     def update(self, data):
         # First run one gradient descent step for Q.
         self.q_optimizer.zero_grad()
-        loss_q, loss_info = self.critic_loss(data)
+        loss_q, q_info = self.critic_loss(data)
         loss_q.backward()
         self.q_optimizer.step()
 
@@ -101,7 +111,7 @@ class ddpg:
 
         # Next run one gradient descent step for pi.
         self.pi_optimizer.zero_grad()
-        loss_pi = self.actor_loss(data)
+        loss_pi, pi_info = self.actor_loss(data)
         loss_pi.backward()
         self.pi_optimizer.step()
 
@@ -111,6 +121,9 @@ class ddpg:
 
         # Record things
         # logger.store(LossQ=loss_q.item(), LossPi=loss_pi.item(), **loss_info)
+        if self.wandb_logging:
+            print('---------------- Check -----------------')
+            wandb.log({"q_loss": q_info, "actor_loss": pi_info})
 
         # Finally, update target networks by polyak averaging.
         with torch.no_grad():
@@ -237,7 +250,7 @@ if __name__ == '__main__':
 
     ac = CNNActorCritic(inp_shape, act_dim, act_lim)
 
-    agent = ddpg(env, test_env, ac, inp_shape)
+    agent = ddpg(env, test_env, ac, inp_shape, wandb_logging=True)
     agent.train()
 
 
