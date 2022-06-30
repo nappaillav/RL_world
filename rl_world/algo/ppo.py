@@ -89,7 +89,6 @@ def make_env():
     def trunk():
         # inp_shape, act_dim, act_lim = (80, 120, 3), 2, 1
         env = DuckietownEnv(
-            seed=0,
             map_name='udem1',
             frame_skip=1,
             distortion=False,

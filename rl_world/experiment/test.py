@@ -20,7 +20,7 @@ import os
 
 video_name = './output/video.avi'
 max_step = 1000
-weight_path = '/home/proton/course/project/RL_world/rl_world/algo/model_agent_300.pt'
+weight_path = '/home/proton/course/project/RL_world/rl_world/algo/model_agent_20.pt'
 fps = 25
 
 parser = argparse.ArgumentParser()
